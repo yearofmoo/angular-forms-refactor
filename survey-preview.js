@@ -25,21 +25,20 @@ var studyPreviewModule = angular.module("SurveyPreview", ['SurveyCommon'])
     this.options = directiveScope.$eval($attrs.field);
   }]);
 
-angular.forEach([
- 'appInputTextComponent',
- 'appInputUrlComponent',
- 'appInputEmailComponent',
- 'appSelectComponent',
- 'appTextareaComponent',
- 'appInputDateComponent'],
-
- function(directiveSelector) {
+angular.forEach({
+ 'input-text': 'appInputTextComponent',
+ 'input-url': 'appInputUrlComponent',
+ 'input-email': 'appInputEmailComponent',
+ 'input-date': 'appInputDateComponent',
+ 'select': 'appSelectComponent',
+ 'textarea': 'appTextareaComponent'
+ }, function(directiveSelector, tpl) {
   studyPreviewModule
     .directive(directiveSelector, [function() {
       return {
         controller: 'InputComponentController',
         controllerAs: 'componentCtrl',
-        templateUrl : './field-templates/input-text.html',
+        templateUrl : './field-templates/' + tpl + '.html',
         scope: {
           model: '='
         }
