@@ -1,0 +1,46 @@
+<header class="row page-header">
+  <h1>
+    Angular-style Surveys
+  </h1>
+  <nav>
+    <div class="btn primary medium">
+      <a href="#/new">
+        Create New Survey
+      </a>
+    </div>
+  </nav>
+</header>
+
+<div ng-controller="SurveyListController as indexCtrl" class="row">
+  <div ng-if="indexCtrl.count == 0">
+    There are currently no surveys.
+    <div class="btn default large">
+      <a href="#/new">
+        Click here to create one
+      </a>
+    </div>
+  </div>
+  <div ng-repeat="entry in indexCtrl.entries">
+    <h2>
+      <a ng-href="#/preview/{{ entry.id }}">{{ $index + 1 }}. {{ entry.title }}</a>
+    </h2>
+    <p>
+      Created on 
+      <span>{{ entry.date }}</span>,
+      <span>{{ entry.fields.length }}</span>
+      fields
+    </p>
+    <nav>
+      <div class="btn primary medium">
+        <a href="#/edit/{{ entry.id }}">
+          Edit
+        </a>
+      </div>
+      <div class="btn danger medium">
+        <a href="" ng-click="indexCtrl.removeSurvey(entry)">
+          Remove
+        </a>
+      </div>
+    </nav>
+  </div>
+</div>

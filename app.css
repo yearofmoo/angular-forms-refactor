@@ -1,0 +1,65 @@
+* {
+  box-sizing:border-box;
+}
+
+body {
+  padding:50px 0;
+}
+
+.repeated-form-fields {
+  background:#eee;
+  padding:0 0 20px;
+}
+
+.field-number {
+  font-size:70px;
+  padding-top:50px;
+  text-align:center;
+}
+
+select {
+  width:100%;
+}
+
+.repeated-form-row {
+  position:relative;
+  padding:20px 0;
+  border-bottom:2px dashed #ddd;
+}
+
+.inner-actions {
+  padding:20px 0 0;
+}
+
+.field-actions {
+  position:absolute;
+  right:0;
+  top:20px;
+}
+
+.submit-actions {
+  padding:40px 0;
+}
+
+.page-header {
+  margin-bottom:50px;
+}
+
+body {
+  border-top:5px solid maroon;
+}
+
+.errors {
+  color:maroon;
+  padding:5px 0 0;
+}
+
+.page-header {
+  position:relative;
+}
+
+.page-header nav {
+  position:absolute;
+  top:0;
+  right:0;
+}

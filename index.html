@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html ng-app="MyApp">
+<head>
+<title>My Angular App</title>
+<link rel="stylesheet" type="text/css" href="./bower_components/gumby/css/gumby.css" />
+<link rel="stylesheet" type="text/css" href="./bower_components/font-awesome/css/font-awesome.css" />
+<link rel="stylesheet" type="text/css" href="./app.css" />
+</head>
+<body>
+
+  <div ng-view></div>
+
+<script type="text/javascript" src="./bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="./bower_components/angular-route/angular-route.js"></script>
+<script type="text/javascript" src="./bower_components/angular-messages/angular-messages.js"></script>
+<script type="text/javascript" src="./survey-index.js"></script>
+<script type="text/javascript" src="./survey-common.js"></script>
+<script type="text/javascript" src="./survey-editor.js"></script>
+<script type="text/javascript" src="./survey-preview.js"></script>
+<script type="text/javascript">
+angular.module("MyApp", ['ngRoute', 'SurveyIndex', 'SurveyEditor', 'SurveyPreview'])
+  .config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/new', {
+      templateUrl : './survey-editor.html'
+    });
+    $routeProvider.when('/preview/:id', {
+      templateUrl : './survey-preview.html'
+    });
+    $routeProvider.when('/', {
+      templateUrl : './survey-index.html'
+    });
+    $routeProvider.when('/edit/:id',{
+      templateUrl : './survey-editor.html'
+    });
+    $routeProvider.otherwise({
+      redirectTo: '/'
+    });
+  }])
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "http-server": "^0.7.3",
+    "open": "0.0.5"
+  }
+}

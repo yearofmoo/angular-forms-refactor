@@ -1,0 +1,46 @@
+<div class="row" ng-controller="SurveyPreviewController as previewCtrl">
+  <h2>{{ previewCtrl.survey.title }}</h2>
+  <form name="previewForm" ng-submit="previewCtrl.submit(previewForm.$valid, data)">
+    <div ng-form="answerEntryForm" ng-repeat="field in previewCtrl.survey.fields track by $index">
+      <h5>
+        <span ng-show="field.required">*</span>
+        {{ field.label }}:
+      </h5>
+      <div ng-switch="field.type">
+        <div ng-switch-when="input">
+          <app-input-text-component field="field" model="data.answers[$index]">
+          </app-input-text-component>
+        </div>
+        <div ng-switch-when="input:url">
+          <app-input-url-component field="field" model="data.answers[$index]">
+          </app-input-url-component>
+        </div>
+        <div ng-switch-when="input:email">
+          <app-input-email-component field="field" model="data.answers[$index]">
+          </app-input-email-component>
+        </div>
+        <div ng-switch-when="input:date">
+          <app-input-date-component field="field" model="data.answers[$index]">
+          </app-input-date-component>
+        </div>
+        <div ng-switch-when="textarea">
+          <app-textarea-component field="field" model="data.answers[$index]">
+          </app-textarea-component>
+        </div>
+        <div ng-switch-when="select">
+          <app-select-component field="field" model="data.answers[$index]" options="field.acceptable_answers">
+          </app-select-component>
+        </div>
+      </div>
+      <div ng-messages="answerEntryForm.$error"
+           ng-messages-include="errors.html">
+      </div>
+    </div>
+    <input type="submit" />
+  </form>
+</div>
+
+<script type="text/ng-template" id="errors.html">
+  <div ng-message="required">You did not enter a value for this field</div>
+  <div ng-message="date">You have entered an invalid date</div>
+</script>

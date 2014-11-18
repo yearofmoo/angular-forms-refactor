@@ -1,0 +1,113 @@
+<form ng-controller="SurveyFormController as ctrl"
+      name="surveyForm"
+      ng-submit="ctrl.submit(surveyForm.$valid, data)"
+      novalidate>
+      
+  <header class="row page-header">
+    <h1>
+      <span ng-hide="data.id">
+        Create New Survey
+      </span>
+      <span ng-show="data.id">
+        Update Existing Survey
+      </span>
+    </h1>
+  </header>
+
+  <div class="row">
+    <div class="field six columns">
+      <label>Title:</label>
+      <input type="text" ng-model="data.title" name="title" required class="input" />
+      <div class="errors" ng-if="surveyForm.$submitted || surveyForm.title.$touched" ng-messages="surveyForm.title.$error" ng-messages-include="errors.html"></div>
+    </div>
+
+    <div class="field six columns">
+      <label>Publish Date:</label>
+      <input type="date" ng-model="data.date" name="publish_date" required class="input" />
+      <div class="errors" ng-if="surveyForm.$submitted || surveyForm.publish_date.$touched" ng-messages="surveyForm.publish_date.$error" ng-messages-include="errors.html"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label>Description:</label>
+      <textarea ng-model="data.description" name="description" required class="input textarea"></textarea>
+      <div class="errors" ng-if="surveyForm.$submitted || surveyForm.description.$touched" ng-messages="surveyForm.description.$error" ng-messages-include="errors.html"></div>
+    </div>
+  </div>
+
+  <div class="repeated-form-fields"
+       ng-form="surveyFieldsForm"
+       ng-controller="SurveyFieldsFormController as fieldsCtrl"
+       fields="data.fields">
+    <div ng-form="surveyFieldForm" ng-repeat="field in data.fields track by $index" class="repeated-form-row row">
+      <div class="two columns field-number">
+        {{ $index + 1 }}.
+      </div>
+      <div class="seven columns">
+        <div class="field">
+          <label>Input Type:</label>
+          <select ng-model="field.type" ng-options="entry.value as entry.title for entry in fieldsCtrl.inputTypes" class="input select" name="field_type" required>
+          </select>
+          <div class="errors" ng-if="surveyForm.$submitted || surveyFieldForm.field_type.$touched" ng-messages="surveyFieldForm.field_type.$error" ng-messages-include="errors.html"></div>
+        </div>
+        <div class="field">
+          <label>Label / Question:</label>
+          <input type="text" ng-model="field.label" class="input" required name="field_label" />
+          <div class="errors" ng-if="surveyForm.$submitted || surveyFieldForm.field_label.$touched" ng-messages="surveyFieldForm.field_label.$error" ng-messages-include="errors.html"></div>
+        </div>
+        <div class="row">
+          <div class="six columns">
+            <label>
+              <input type="checkbox" ng-model="field.required"  />
+              This field is required
+            <label>
+          </div>
+        </div>
+        <div ng-if="fieldsCtrl.isMultipleField(field.type)" class="row">
+          <div class="field">
+            <label>Acceptable Answers</label>
+            <input type="text" ng-model="field.acceptable_answers" class="input" ng-list />
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" ng-model="field.custom_value"  />
+              Allow custom value?
+            <label>
+          </div>
+        </div>
+        <nav class="field-actions">
+          <div class="medium btn info" ng-if="fieldsCtrl.allowSwap($index-1)">
+            <a href="" class="fa fa-caret-up" ng-click="fieldsCtrl.swapFields($index, $index-1)"></a>
+          </div>
+          <div class="medium btn info" ng-if="fieldsCtrl.allowSwap($index+1)">
+            <a href="" class="fa fa-caret-down" ng-click="fieldsCtrl.swapFields($index, $index+1)"></a>
+          </div>
+          <div class="medium btn danger">
+            <a href="" class="fa fa-remove" ng-click="fieldsCtrl.removeField(field)">
+            </a>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <nav class="row inner-actions">
+      <span class="medium secondary btn">
+        <a href="" ng-click="fieldsCtrl.newField()">
+          Add Field
+        </a>
+      </span>
+    </div>
+  </div>
+
+  <nav class="submit-actions row">
+    <div class="btn primary large">
+      <button>Submit</button>
+    </div>
+  </nav>
+
+</form>
+
+<script type="text/ng-template" id="errors.html">
+  <div ng-message="required">You did not enter a value for this field</div>
+  <div ng-message="date">You have entered an invalid date</div>
+</script>
