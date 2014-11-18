@@ -21,6 +21,7 @@
 angular.module("MyApp", ['ngRoute', 'SurveyIndex', 'SurveyEditor', 'SurveyPreview'])
   .config(['$routeProvider', function($routeProvider) {
     $routeProvider.when('/new', {
+      controller: 'SurveyEditorPageController as pageCtrl',
       templateUrl : './survey-editor.html'
     });
     $routeProvider.when('/preview/:id', {
@@ -30,6 +31,7 @@ angular.module("MyApp", ['ngRoute', 'SurveyIndex', 'SurveyEditor', 'SurveyPrevie
       templateUrl : './survey-index.html'
     });
     $routeProvider.when('/edit/:id',{
+      controller: 'SurveyEditorPageController as pageCtrl',
       templateUrl : './survey-editor.html'
     });
     $routeProvider.otherwise({

@@ -1,7 +1,8 @@
 angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
 
-  .controller("SurveyFormController", ["$scope", "surveyCache", "$routeParams", "$location",
-                               function($scope,   surveyCache,   $routeParams,   $location) {
+  .controller("SurveyEditorPageController",
+           ["surveyCache", "$routeParams", "$location",
+    function(surveyCache,   $routeParams,   $location) {
 
     var surveyData = $routeParams.id ? surveyCache.get($routeParams.id) : {};
     if (!surveyData) {
@@ -9,27 +10,68 @@ angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
       return;
     }
     
-    $scope.data = surveyData;
-    $scope.data.fields = $scope.data.fields || [];
+    var isNew = surveyData.id >= 0;
 
-    var entryExists = surveyData.id >= 0;
+    //initialize the data
+    this.data = surveyData;
+    this.data.fields = this.data.fields || [];
 
-    var ctrl = this;
-    this.submit = function(isValid, data) {
-      if (isValid) {
-        if (entryExists) {
-          surveyCache.set(data.id, data);
-        } else {
-          surveyCache.add(data);
-        }
-        $location.path('/preview/' + data.id);
+    this.onSave = function(data) {
+      if (isNew) {
+        surveyCache.set(data.id, data);
+      } else {
+        surveyCache.add(data);
       }
+      $location.path('/preview/' + data.id);
     };
   }])
 
-  .controller("SurveyFieldsFormController", ['$attrs', '$scope', function($attrs, $scope) {
-    var fields = $scope.$eval($attrs.fields);
+  .directive("surveyEditorForm", [function() {
+    return {
+      transclude: true,
+      controller : ['$scope', '$attrs', function($scope, $attrs) {
+        this.handleSubmit = function(valid) {
+          if (valid) {
+            $scope.$eval($attrs.onValidSubmit);
+          }
+        };
+      }],
+      controllerAs: 'ctrl',
+      template: '<form name="surveyForm" ' +
+                      'ng-submit="ctrl.handleSubmit(surveyForm.$valid)" ' +
+                      'novalidate>' +
+                '  <div ng-transclude></div>' +
+                '</form>'
+    };
+  }])
 
+  .directive('surveyEditorFields', [function() {
+    return {
+      transclude: true,
+      controller: 'SurveyFieldsFormController',
+      controllerAs: 'fieldsCtrl',
+      template: '<div class="repeated-form-fields"' +
+                '  ng-form="surveyFieldsForm">' +
+                '  <div ng-transclude></div>' +
+                '</div>'
+    }
+  }])
+
+  .directive('surveyEditorField', [function() {
+    return {
+      transclude: true,
+      template: '<div class="repeated-form-row"' +
+                '  ng-form="surveyFieldForm">' +
+                '  <div ng-transclude></div>' +
+                '</div>'
+    }
+  }])
+
+  .controller("SurveyFieldsFormController", ['$attrs', '$scope', function($attrs, $scope) {
+    var self = this;
+
+    this.fields = $scope.$eval($attrs.fields) || [];
+    
     this.inputTypes = [
       { value: "input", title: "input" },
       { value: "input:email", title: "input[email]" },
@@ -44,25 +86,25 @@ angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
     };
 
     this.newField = function() {
-      fields.push({});
+      self.fields.push({});
     };
 
     this.allowSwap = function(index) {
-      return index >= 0 && index < fields.length;
+      return index >= 0 && index < self.fields.length;
     };
 
     this.swapFields = function(indexA, indexB) {
-      if (this.allowSwap(indexB)) {
-        var tmp = fields[indexA];
-        fields[indexA] = fields[indexB];
-        fields[indexB] = tmp;
+      if (self.allowSwap(indexB)) {
+        var tmp = self.fields[indexA];
+        self.fields[indexA] = self.fields[indexB];
+        self.fields[indexB] = tmp;
       }
     }
 
     this.removeField = function(field) {
-      var index = fields.indexOf(field);
+      var index = self.fields.indexOf(field);
       if (index >= 0) {
-        fields.splice(index, 1);
+        self.fields.splice(index, 1);
       }
     };
   }])
