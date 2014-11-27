@@ -1360,15 +1360,15 @@ System.register("survey-common", [], function() {
     var data = localStorage[$traceurRuntime.toProperty(PREFIX)];
     var collection = data && data.length ? loadEntryFromJSON(data) : {};
     return self = {
-      list: function() {
+      list: (function() {
         return collection;
-      },
-      get: function(id) {
+      }),
+      get: (function(id) {
         return collection[$traceurRuntime.toProperty(id + "")];
-      },
-      exists: function(id) {
+      }),
+      exists: (function(id) {
         return !!collection[$traceurRuntime.toProperty(id + "")];
-      },
+      }),
       set: function(id, data) {
         if (self.exists(id)) {
           data.id = id;
@@ -1388,9 +1388,9 @@ System.register("survey-common", [], function() {
           self.save();
         }
       },
-      save: function() {
-        $traceurRuntime.setProperty(localStorage, PREFIX, JSON.stringify(collection));
-      }
+      save: (function() {
+        return $traceurRuntime.setProperty(localStorage, PREFIX, JSON.stringify(collection));
+      })
     };
     function loadEntryFromJSON(data) {
       var contents = JSON.parse(data);
@@ -1413,6 +1413,52 @@ System.register("survey-common", [], function() {
 System.register("survey-editor", [], function() {
   "use strict";
   var __moduleName = "survey-editor";
+  var SurveyFieldsFormController = function SurveyFieldsFormController(fields) {
+    this.fields = fields;
+    this.inputTypes = [{
+      value: "input",
+      title: "input"
+    }, {
+      value: "input:email",
+      title: "input[email]"
+    }, {
+      value: "input:url",
+      title: "input[url]"
+    }, {
+      value: "input:date",
+      title: "input[date]"
+    }, {
+      value: "textarea",
+      title: "textarea"
+    }, {
+      value: "select",
+      title: "select"
+    }];
+  };
+  ($traceurRuntime.createClass)(SurveyFieldsFormController, {
+    isMultipleField: function(type) {
+      return type == 'select';
+    },
+    newField: function() {
+      this.fields.push({});
+    },
+    allowSwap: function(index) {
+      return index >= 0 && index < this.fields.length;
+    },
+    swapFields: function(indexA, indexB) {
+      if (this.allowSwap(indexB)) {
+        var tmp = this.fields[$traceurRuntime.toProperty(indexA)];
+        $traceurRuntime.setProperty(this.fields, indexA, this.fields[$traceurRuntime.toProperty(indexB)]);
+        $traceurRuntime.setProperty(this.fields, indexB, tmp);
+      }
+    },
+    removeField: function(field) {
+      var index = this.fields.indexOf(field);
+      if (index >= 0) {
+        this.fields.splice(index, 1);
+      }
+    }
+  }, {});
   angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon']).controller("SurveyEditorPageController", ["surveyCache", "$routeParams", "$location", function(surveyCache, $routeParams, $location) {
     var surveyData = $routeParams.id ? surveyCache.get($routeParams.id) : {};
     if (!surveyData) {
@@ -1447,7 +1493,6 @@ System.register("survey-editor", [], function() {
     return {
       transclude: true,
       controller: 'SurveyFieldsFormController',
-      controllerAs: 'fieldsCtrl',
       template: '<div class="repeated-form-fields"' + '  ng-form="surveyFieldsForm">' + '  <div ng-transclude></div>' + '</div>'
     };
   }]).directive('surveyEditorField', [function() {
@@ -1456,49 +1501,8 @@ System.register("survey-editor", [], function() {
       template: '<div class="repeated-form-row"' + '  ng-form="surveyFieldForm">' + '  <div ng-transclude></div>' + '</div>'
     };
   }]).controller("SurveyFieldsFormController", ['$attrs', '$scope', function($attrs, $scope) {
-    var self = this;
-    this.fields = $scope.$eval($attrs.fields) || [];
-    this.inputTypes = [{
-      value: "input",
-      title: "input"
-    }, {
-      value: "input:email",
-      title: "input[email]"
-    }, {
-      value: "input:url",
-      title: "input[url]"
-    }, {
-      value: "input:date",
-      title: "input[date]"
-    }, {
-      value: "textarea",
-      title: "textarea"
-    }, {
-      value: "select",
-      title: "select"
-    }];
-    this.isMultipleField = function(type) {
-      return type == 'select';
-    };
-    this.newField = function() {
-      self.fields.push({});
-    };
-    this.allowSwap = function(index) {
-      return index >= 0 && index < self.fields.length;
-    };
-    this.swapFields = function(indexA, indexB) {
-      if (self.allowSwap(indexB)) {
-        var tmp = self.fields[$traceurRuntime.toProperty(indexA)];
-        $traceurRuntime.setProperty(self.fields, indexA, self.fields[$traceurRuntime.toProperty(indexB)]);
-        $traceurRuntime.setProperty(self.fields, indexB, tmp);
-      }
-    };
-    this.removeField = function(field) {
-      var index = self.fields.indexOf(field);
-      if (index >= 0) {
-        self.fields.splice(index, 1);
-      }
-    };
+    var fields = $scope.$eval($attrs.fields) || [];
+    $scope.fieldsCtrl = new SurveyFieldsFormController(fields);
   }]);
   return {};
 });
@@ -1527,7 +1531,36 @@ System.register("survey-index", [], function() {
 
 System.register("survey-preview", [], function() {
   "use strict";
+  var $__1;
   var __moduleName = "survey-preview";
+  var SurveyResult = function SurveyResult(data) {
+    this._data = data || {};
+    this._answers = this._data.answers;
+  };
+  ($traceurRuntime.createClass)(SurveyResult, ($__1 = {}, Object.defineProperty($__1, "answers", {
+    value: function() {
+      var $__1;
+      var index = 0;
+      var self = this;
+      return ($__1 = {}, Object.defineProperty($__1, Symbol.iterator, {
+        value: function() {
+          return {next: function() {
+              var value = index >= self._answers.length ? null : self._answers[$traceurRuntime.toProperty(index++)];
+              return {
+                value: value,
+                done: !value
+              };
+            }};
+        },
+        configurable: true,
+        enumerable: true,
+        writable: true
+      }), $__1);
+    },
+    configurable: true,
+    enumerable: true,
+    writable: true
+  }), $__1), {});
   var studyPreviewModule = angular.module("SurveyPreview", ['SurveyCommon']).controller("SurveyPreviewController", ["$scope", "surveyCache", "$routeParams", "$location", function($scope, surveyCache, $routeParams, $location) {
     var surveyData = $routeParams.id ? surveyCache.get($routeParams.id) : {};
     if (!surveyData) {
@@ -1538,7 +1571,14 @@ System.register("survey-preview", [], function() {
     this.survey = surveyData;
     this.submit = function(valid, data) {
       if (valid) {
-        console.log('submitted', data);
+        var result = new SurveyResult(data);
+        for (var $__2 = result.answers()[$traceurRuntime.toProperty(Symbol.iterator)](),
+            $__3; !($__3 = $__2.next()).done; ) {
+          var number = $__3.value;
+          {
+            console.log(number);
+          }
+        }
       }
     };
   }]).controller("InputComponentController", ['$scope', '$attrs', function($scope, $attrs) {

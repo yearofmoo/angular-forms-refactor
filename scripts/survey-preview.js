@@ -1,3 +1,26 @@
+class SurveyResult {
+  constructor(data) {
+    this._data = data || {};
+    this._answers = this._data.answers;
+  }
+
+  answers() {
+    var index = 0;
+    var self = this;
+    return {
+      [Symbol.iterator]: function() {
+        return {
+          next : function() {
+            var value = index >= self._answers.length ? null : self._answers[index++];
+            return { value : value, done : !value };
+          } 
+        }
+      }
+    };
+  }
+}
+
+
 var studyPreviewModule = angular.module("SurveyPreview", ['SurveyCommon'])
 
   .controller("SurveyPreviewController",
@@ -15,7 +38,10 @@ var studyPreviewModule = angular.module("SurveyPreview", ['SurveyCommon'])
 
     this.submit = function(valid, data) {
       if (valid) {
-        console.log('submitted', data);
+        var result = new SurveyResult(data);
+        for (var number of result.answers()) {
+          console.log(number);
+        }
       }
     }
   }])

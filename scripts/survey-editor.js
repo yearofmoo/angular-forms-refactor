@@ -1,3 +1,44 @@
+class SurveyFieldsFormController {
+  constructor(fields) {
+    this.fields = fields;
+    this.inputTypes = [
+      { value: "input", title: "input" },
+      { value: "input:email", title: "input[email]" },
+      { value: "input:url", title: "input[url]" },
+      { value: "input:date", title: "input[date]" },
+      { value: "textarea", title: "textarea" },
+      { value: "select", title: "select" }
+    ];
+  }
+    
+  isMultipleField (type) {
+    return type == 'select';
+  }
+
+  newField () {
+    this.fields.push({});
+  }
+
+  allowSwap (index) {
+    return index >= 0 && index < this.fields.length;
+  }
+
+  swapFields (indexA, indexB) {
+    if (this.allowSwap(indexB)) {
+      var tmp = this.fields[indexA];
+      this.fields[indexA] = this.fields[indexB];
+      this.fields[indexB] = tmp;
+    }
+  }
+
+  removeField (field) {
+    var index = this.fields.indexOf(field);
+    if (index >= 0) {
+      this.fields.splice(index, 1);
+    }
+  };
+}
+
 angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
 
   .controller("SurveyEditorPageController",
@@ -49,7 +90,6 @@ angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
     return {
       transclude: true,
       controller: 'SurveyFieldsFormController',
-      controllerAs: 'fieldsCtrl',
       template: '<div class="repeated-form-fields"' +
                 '  ng-form="surveyFieldsForm">' +
                 '  <div ng-transclude></div>' +
@@ -68,43 +108,6 @@ angular.module('SurveyEditor', ['ngMessages', 'SurveyCommon'])
   }])
 
   .controller("SurveyFieldsFormController", ['$attrs', '$scope', function($attrs, $scope) {
-    var self = this;
-
-    this.fields = $scope.$eval($attrs.fields) || [];
-    
-    this.inputTypes = [
-      { value: "input", title: "input" },
-      { value: "input:email", title: "input[email]" },
-      { value: "input:url", title: "input[url]" },
-      { value: "input:date", title: "input[date]" },
-      { value: "textarea", title: "textarea" },
-      { value: "select", title: "select" }
-    ];
-
-    this.isMultipleField = function(type) {
-      return type == 'select';
-    };
-
-    this.newField = function() {
-      self.fields.push({});
-    };
-
-    this.allowSwap = function(index) {
-      return index >= 0 && index < self.fields.length;
-    };
-
-    this.swapFields = function(indexA, indexB) {
-      if (self.allowSwap(indexB)) {
-        var tmp = self.fields[indexA];
-        self.fields[indexA] = self.fields[indexB];
-        self.fields[indexB] = tmp;
-      }
-    }
-
-    this.removeField = function(field) {
-      var index = self.fields.indexOf(field);
-      if (index >= 0) {
-        self.fields.splice(index, 1);
-      }
-    };
+    var fields = $scope.$eval($attrs.fields) || [];
+    $scope.fieldsCtrl = new SurveyFieldsFormController(fields);
   }])
